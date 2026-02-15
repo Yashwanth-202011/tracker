@@ -1,0 +1,164 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}My Dashboard - PeriodFlow{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom: 1rem;">Welcome to Your Dashboard</h1>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">Log your period today and tracking your cycle.</p>
+
+    <div class="next-date-card">
+        <span
+            style="font-weight: 500; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">Predicted
+            Next Period</span>
+        <span class="next-date-value">
+            {% if next_date %}
+            {{ next_date|date:"F d, Y" }}
+            {% else %}
+            Need more data to predict
+            {% endif %}
+        </span>
+    </div>
+
+    <div style="margin-top: 3rem;">
+        {% if already_logged %}
+        <div
+            style="background: #eefbee; color: #1e4620; padding: 1.5rem; border-radius: 12px; border: 1px solid #c6f6d5; margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 0.5rem;">🎉 Period Logged for Today!</h3>
+            <p>You've already recorded your period start for today. Take rest and stay hydrated!</p>
+        </div>
+        {% else %}
+        <div style="margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem;">Started your period today?</h3>
+            <form action="{% url 'log_period' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" style="padding: 1.5rem 3rem; font-size: 1.2rem;">
+                    🌸 Click if Period Started
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Stress Relief Game Section -->
+    <div style="margin-top: 2rem; border-top: 2px dashed #edf2f4; padding-top: 2rem;">
+        <h2 style="color: var(--primary); margin-bottom: 1rem;">Zen Stress Relief</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Need a moment? Pop some calming bubbles.</p>
+
+        <div id="game-container"
+            style="background: #fafafa; border-radius: 20px; height: 300px; position: relative; overflow: hidden; border: 1px solid #edf2f4; cursor: crosshair;">
+            <!-- Bubbles will be generated here -->
+        </div>
+
+        <div style="margin-top: 1rem;">
+            <button onclick="resetGame()" class="btn"
+                style="background: #f8f9fa; color: var(--text-muted); font-size: 0.85rem; padding: 0.5rem 1rem; border: 1px solid #edf2f4;">Reset
+                Bubbles</button>
+        </div>
+    </div>
+
+    {% if last_log %}
+    <p
+        style="margin-top: 3rem; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid #edf2f4; padding-top: 1rem;">
+        Last recorded: {{ last_log.period_date|date:"F d, Y" }}
+    </p>
+    {% endif %}
+</div>
+
+<script>
+    const container = document.getElementById('game-container');
+    const colors = ['#ff4d6d', '#ff758f', '#ff8fa3', '#ffb3c1', '#c9184a'];
+
+    function createBubble() {
+        const bubble = document.createElement('div');
+        const size = Math.random() * 40 + 30;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.backgroundColor = color;
+        bubble.style.borderRadius = '50%';
+        bubble.style.position = 'absolute';
+        bubble.style.left = `${Math.random() * (container.clientWidth - size)}px`;
+        bubble.style.top = `${Math.random() * (container.clientHeight - size)}px`;
+        bubble.style.opacity = '0.6';
+        bubble.style.boxShadow = 'inset -5px -5px 10px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.05)';
+        bubble.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        bubble.style.cursor = 'pointer';
+
+        bubble.addEventListener('mouseenter', () => {
+            bubble.style.transform = 'scale(1.1)';
+            bubble.style.opacity = '0.8';
+        });
+
+        bubble.addEventListener('mouseleave', () => {
+            bubble.style.transform = 'scale(1)';
+            bubble.style.opacity = '0.6';
+        });
+
+        bubble.addEventListener('click', () => {
+            popBubble(bubble);
+        });
+
+        container.appendChild(bubble);
+    }
+
+    function popBubble(bubble) {
+        // Pop animation
+        bubble.style.transform = 'scale(1.5)';
+        bubble.style.opacity = '0';
+
+        // Create particles
+        for (let i = 0; i < 8; i++) {
+            createParticle(bubble.offsetLeft + bubble.clientWidth / 2, bubble.offsetTop + bubble.clientHeight / 2, bubble.style.backgroundColor);
+        }
+
+        setTimeout(() => {
+            bubble.remove();
+            // Create a new one after a delay to keep the game going
+            setTimeout(createBubble, 1000);
+        }, 300);
+    }
+
+    function createParticle(x, y, color) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        particle.style.width = '6px';
+        particle.style.height = '6px';
+        particle.style.backgroundColor = color;
+        particle.style.borderRadius = '50%';
+        particle.style.pointerEvents = 'none';
+
+        const destinationX = (Math.random() - 0.5) * 100;
+        const destinationY = (Math.random() - 0.5) * 100;
+
+        container.appendChild(particle);
+
+        const animation = particle.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${destinationX}px, ${destinationY}px) scale(0)`, opacity: 0 }
+        ], {
+            duration: 600,
+            easing: 'ease-out'
+        });
+
+        animation.onfinish = () => particle.remove();
+    }
+
+    function resetGame() {
+        container.innerHTML = '';
+        initGame();
+    }
+
+    function initGame() {
+        for (let i = 0; i < 15; i++) {
+            setTimeout(createBubble, i * 100);
+        }
+    }
+
+    // Initialize on load
+    window.onload = initGame;
+</script>
+{% endblock %}

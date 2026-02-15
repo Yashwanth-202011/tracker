@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Period Tracker{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --primary-dark: #c9184a;
+            --secondary: #ff758f;
+            --bg: #fff0f3;
+            --card-bg: #ffffff;
+            --text-main: #2b2d42;
+            --text-muted: #8d99ae;
+            --success: #38b000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--bg);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+            flex-grow: 1;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        .btn-logout {
+            background: #ef233c;
+            color: white;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #edf2f4;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #edf2f4;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-user { background: #e0f2fe; color: #0369a1; }
+        .badge-admin { background: #fef3c7; color: #92400e; }
+
+        .next-date-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            border-left: 5px solid var(--primary);
+        }
+
+        .next-date-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">PeriodFlow</a>
+        {% if user.is_authenticated %}
+            <div>
+                <span style="margin-right: 1rem; color: var(--text-muted)">Welcome, {{ user.username }}</span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-logout">Logout</button>
+                </form>
+            </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+        &copy; 2026 PeriodFlow Tracker
+    </footer>
+</body>
+</html>
